@@ -7,6 +7,9 @@ adapter's issueRoot with why now, scope, non-goals, acceptance, prerequisites,
 unresolved decisions and source. Do not manufacture a solution from ambiguous
 product intent. Material alternatives go into a decision packet; ordinary
 implementation choices can be selected with evidence and recorded.
+Identify the user problem or existing issue and the target branch's actual
+behavior before proposing additions. Reuse the existing path where it fits.
+Keep ideas with no demonstrated role in the requested outcome out of the plan.
 Bind the issue to the run. Light path emits LIGHT_READY, full path ISSUE_READY.
 
 ## Change planning
@@ -57,6 +60,12 @@ Missing evidence is a repairable failure; unknown environment/tool dependency
 is WAIT; changed product meaning is a decision. For a nonlocal endpoint,
 obtain any missing authorization, actually perform the configured action, then
 verify the PR/merge/deployment outcome. Never claim publication from approval.
+Report the strongest check actually run for each promised result. Build, unit
+tests, simulation and a real user interaction cover different things. For a
+view whose state should survive navigation, exercise the actual UI: establish
+state, leave the view, return, and check the state. If only build or simulated
+evidence is available, mark the real interaction unverified. For PR delivery,
+verify the remote head and PR state against the intended branch and commit.
 
 ## Sync / archive
 Follow protocol.md closure. Confirm all tasks and in-scope scenarios are proven,

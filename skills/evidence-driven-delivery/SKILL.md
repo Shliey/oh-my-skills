@@ -11,11 +11,14 @@ the source repository. Python 3.11+ is required for helpers; no pip packages.
 
 ## Entry routing
 
-1. Inspect the user's intent and applicable project instructions. A request to
-   review, explain or plan is observational: read and report without onboarding,
-   creating a run or implementing. End-to-end implementation authorization
-   permits routine local artifacts, reviews and checks within that scope.
+1. Inspect intent and project instructions before choosing a path. Explain,
+   review, and plan requests are read-only: do not onboard, start a run, or
+   implement. If the user wants to write the code, offer one bounded increment
+   with constraints, hints and a focused check; review their attempt when
+   supplied. Keep that ownership until they explicitly hand over implementation.
+   For authorized delivery, advance routine local work and checks within scope.
 2. For delivery or onboarding, read [project-adapter.md](references/project-adapter.md).
+   Check the actual repository, requested branch, worktree and existing behavior.
    Scan first, inspect detected commands before running repository code, and
    initialize only missing control files. Merge the managed AGENTS paragraph;
    do not replace existing rules or OpenSpec configuration.
