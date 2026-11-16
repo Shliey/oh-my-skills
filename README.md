@@ -5,7 +5,7 @@
 | 技能 | 什么时候用 | 能得到什么 |
 | --- | --- | --- |
 | [Evidence-driven Delivery](skills/evidence-driven-delivery/SKILL.md) | 有目标、issue 或已有变更，需要把工作推进到明确的验收结果 | 项目内的规格、任务、检查记录与可恢复状态；常规步骤由 Codex 推进，重要决定由你确认 |
-| [Deep Paper Reading](skills/deep-paper-reading/SKILL.md) | 想看懂论文中的表示、公式、训练、推理或实验 | 带出处的数据流、贯穿示例、证据边界，以及按需提供的论文与源码对照 |
+| [Deep Paper Reading](skills/deep-paper-reading/SKILL.md) | 想看懂论文的论证和方法，或只想问清一个公式 | 完整深读默认交付离线双栏 HTML；局部问题直接在聊天中回答 |
 
 ## 安装
 
@@ -66,13 +66,17 @@ $evidence-driven-delivery 实现订单查询的权限检查，保留现有接口
 
 | 模式 | 聊天示例 |
 | --- | --- |
-| `full`（默认） | `$deep-paper-reading 请用中文完整深读这篇论文。` |
+| `full`（默认） | `$deep-paper-reading full：完整深读这篇论文，课程：机器学习。` |
 | `overview` | `$deep-paper-reading overview：解释输入输出、整体架构和主要创新。` |
 | `module` | `$deep-paper-reading module：拆解量化模块，解释每个维度从哪里来。` |
 | `trace` | `$deep-paper-reading trace：用一个例子走完每一步数据转换。` |
 | `evidence` | `$deep-paper-reading evidence：核对实验和消融支持了哪些结论。` |
 
 默认只分析论文资料。要对照实现，可以加一句“请对照这个仓库的当前源码，指出公式和实际计算的差异”。源码对照与运行复现是不同任务；没有运行证据时只报告读到的实现。论文未说明的细节会保留为未知，教学值会单独标注。读取 PDF、图表和网页取决于宿主可用的工具。
+
+完整深读的 HTML 左栏排英文原文和中文译文，右栏逐段批注；文末是论证总览和可展开的八阶段深读。直接在浏览器打开单个文件即可，无需联网或启动服务。只提供摘要或部分正文时，报告会标明实际覆盖范围。
+
+用 `full format=markdown` 取得原有 Markdown 报告，或用 `module format=html` 把指定模块导出为小范围双栏网页。HTML 生成器使用 Python 3.11+ 标准库；Markdown 模式不需要运行它。
 
 ## 验证与贡献
 
@@ -83,6 +87,7 @@ $validator = Join-Path $HOME '.codex/skills/.system/skill-creator/scripts/quick_
 python -X utf8 -B $validator .\skills\evidence-driven-delivery
 python -X utf8 -B $validator .\skills\deep-paper-reading
 python -X utf8 -B .\skills\evidence-driven-delivery\scripts\test_delivery.py
+python -X utf8 -B .\skills\deep-paper-reading\scripts\test_render_html.py
 git diff --check
 ```
 

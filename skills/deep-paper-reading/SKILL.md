@@ -1,6 +1,6 @@
 ---
 name: deep-paper-reading
-description: "Analyze AI and machine-learning papers at the level of data, mechanisms, training, inference, and experimental evidence. Use for 深度读论文, 机制解读, module deep dives, data-flow tracing, or explicit paper-to-code comparison. Not a full-text translation or implementation-reproduction workflow."
+description: "Analyze AI and ML papers with evidence, mechanisms, and concrete traces. Use for 深度读论文, 双栏批注, module questions, or paper-to-code comparison. Full reading defaults to a bilingual annotated HTML report; translation-only and reproduction requests are separate."
 ---
 
 # Deep Paper Reading
@@ -21,7 +21,8 @@ description: "Analyze AI and machine-learning papers at the level of data, mecha
 
 - [analysis-protocol.md](references/analysis-protocol.md)：按上表读相应标题，执行实质验收。
 - [paper-archetypes.md](references/paper-archetypes.md)：只读实际相关的机制分支，可组合。
-- [analysis-template.md](assets/analysis-template.md)：生成报告时读取并适配；局部模式只保留相关部分。
+- [annotated-html.md](references/annotated-html.md)：只在输出 HTML 时读取；说明英中逐段批注与单文件生成。
+- [analysis-template.md](assets/analysis-template.md)：输出 Markdown 时读取；局部模式只保留相关部分。
 - [paper-to-code.md](references/paper-to-code.md)：仅当用户明确要求源码领读或论文与实现对照时读取。它补充所选模式，不改变默认范围，也不授权运行模型。
 - [lamogen-case.md](references/examples/lamogen-case.md)：仅 LaMoGen 分析/验收时读取，不作为通用固定模板。
 
@@ -36,6 +37,8 @@ description: "Analyze AI and machine-learning papers at the level of data, mecha
 
 ## 交付与复查
 
-输出有来源定位的 Markdown。按问题范围选用数据流图、契约/表示表和未知项；局部问题用一行数据流或几行算式就能讲清时，不强制加图表。`full` 必须完成八阶段；过长可分编号部分，明确已完成/待完成阶段并继续，不静默降级摘要。
+格式与分析模式分开选择。完整深读或未指定模式的深读使用 `full`，默认生成一个英中双栏批注 HTML 文件；明确只问一个模块、公式、案例或实验时，按相应局部模式直接用 Markdown 回答。`format=html`、`format=markdown` 或等价明确指示优先；HTML 的局部模式只纳入相关段落。
+
+`full` 保留八阶段，过长时在工作过程中分节整理，明确已完成和待完成部分，不静默降级成摘要。输出 Markdown 时按范围选用图、表和算式；输出 HTML 时按 HTML 指引核对逐段覆盖、证据边界和成品。
 
 交付前按协议最终验收核对数据流衔接、运算形状、训练推理隔离、证据与实验范围。修复解释缺口，保留资料缺口；标题齐全或结构校验不代表机制理解通过。
