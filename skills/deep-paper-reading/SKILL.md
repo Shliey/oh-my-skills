@@ -1,11 +1,11 @@
 ---
 name: deep-paper-reading
-description: "Deep, evidence-grounded analysis of AI and machine-learning papers from black-box input/output contracts to data representations, mechanisms, training and inference, concrete traces, and experimental validation. Use for 深度读论文, 机制解读, module deep dives, data-flow tracing, or checking innovation claims. Not a full-text translation or implementation-reproduction workflow."
+description: "Analyze AI and ML papers with evidence, mechanisms, and concrete traces. Use for 深度读论文, 双栏批注, module questions, or paper-to-code comparison. Full reading defaults to a bilingual annotated HTML report; translation-only and reproduction requests are separate."
 ---
 
 # Deep Paper Reading
 
-把论文从黑盒拆到资料支持的数据与机制层。默认中文，首次术语中英对照。面向理解基础编程的学习者，按“直观例子 → 定义 → 数据结构 → 操作 → 公式 → 设计原因”解释难点，不省略关键机制。
+把论文从黑盒拆到资料支持的数据与机制层。默认用清楚具体的中文，首次出现专业术语时沿用作者用词并附原文英文；不自造术语。面向懂基础编程的读者，用一条贯穿示例解释数据结构、操作、公式和设计原因。
 
 ## 启动与模式
 
@@ -21,7 +21,9 @@ description: "Deep, evidence-grounded analysis of AI and machine-learning papers
 
 - [analysis-protocol.md](references/analysis-protocol.md)：按上表读相应标题，执行实质验收。
 - [paper-archetypes.md](references/paper-archetypes.md)：只读实际相关的机制分支，可组合。
-- [analysis-template.md](assets/analysis-template.md)：生成报告时读取并适配；局部模式只保留相关部分。
+- [annotated-html.md](references/annotated-html.md)：只在输出 HTML 时读取；说明英中逐段批注与单文件生成。
+- [analysis-template.md](assets/analysis-template.md)：输出 Markdown 时读取；局部模式只保留相关部分。
+- [paper-to-code.md](references/paper-to-code.md)：仅当用户明确要求源码领读或论文与实现对照时读取。它补充所选模式，不改变默认范围，也不授权运行模型。
 - [lamogen-case.md](references/examples/lamogen-case.md)：仅 LaMoGen 分析/验收时读取，不作为通用固定模板。
 
 ## 共同约束
@@ -30,11 +32,13 @@ description: "Deep, evidence-grounded analysis of AI and machine-learning papers
 - 未公开的 tokenizer、相似度、阈值、形状、单位、采样和超参数写“原文未说明”。未知不等于推断；用户提示、常见实现和数字搜索命中不算证据。
 - 每个核心模块解释输入、表示、操作、输出、目的、下游与证据；不能停在“编码/匹配/生成”等名字。递归到明确操作或证据边界，后者记录缺失信息及影响。
 - 区分符号/ID/概率/Embedding/张量，训练标签/推理输入，离线/在线，固定/可学习。公式说明每个变量含义、形状、范围、单位和数据流作用，无法确定的项标未知。
-- 不编造中间日志；示意 JSON 不是作者格式，教学张量不是测量值。默认不展示可运行代码。
+- 不编造中间日志；示意 JSON 不是作者格式，教学张量不是测量值。默认不展示可运行代码。未经授权，不向外部服务发送本地论文、代码、数据、提示或产物；查找公开来源时只使用公开标识。
 - 实验只支持实际测量的因素；作者解释与已证实因果分开。复用工具不自动算独立创新，不凑满三项贡献。
 
 ## 交付与复查
 
-输出有来源定位的 Markdown，含对应模式的数据流图、契约/表示表和未知项。`full` 必须完成八阶段；过长可分编号部分，明确已完成/待完成阶段并继续，不静默降级摘要。
+格式与分析模式分开选择。完整深读或未指定模式的深读使用 `full`，默认生成一个英中双栏批注 HTML 文件；明确只问一个模块、公式、案例或实验时，按相应局部模式直接用 Markdown 回答。`format=html`、`format=markdown` 或等价明确指示优先；HTML 的局部模式只纳入相关段落。
+
+`full` 保留八阶段，过长时在工作过程中分节整理，明确已完成和待完成部分，不静默降级成摘要。输出 Markdown 时按范围选用图、表和算式；输出 HTML 时按 HTML 指引核对逐段覆盖、证据边界和成品。
 
 交付前按协议最终验收核对数据流衔接、运算形状、训练推理隔离、证据与实验范围。修复解释缺口，保留资料缺口；标题齐全或结构校验不代表机制理解通过。

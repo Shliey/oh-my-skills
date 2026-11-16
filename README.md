@@ -1,98 +1,96 @@
-# Codex Research & Delivery Skills
+# Oh My Skills
 
-两套可独立安装、跨项目复用的 Codex 技能：面向结果与证据的软件交付，以及面向数据与机制的机器学习论文深读。
+两套独立使用的 Codex 技能：一个把软件需求推进到有证据的交付，另一个把机器学习论文拆到数据和机制层。
 
-## 技能
-
-| 技能 | 用途 | 入口 |
-|---|---|---|
-| `evidence-driven-delivery` | 从目标、issue 或已有 change 自动推进 Spec-first 交付；持久化状态、适配目标项目、执行验证与有界修复，仅在真实决策门请求人工输入 | [SKILL.md](skills/evidence-driven-delivery/SKILL.md) |
-| `deep-paper-reading` | 从黑盒输入输出深入数据表示、模块契约、数学机制、训练推理、完整追踪与创新实验依据 | [SKILL.md](skills/deep-paper-reading/SKILL.md) |
-
-两个技能均自包含：资源路径相对各自技能目录，不依赖原始开发项目。
-
-```text
-skills/
-├── evidence-driven-delivery/
-│   ├── SKILL.md
-│   ├── references/
-│   ├── assets/
-│   └── scripts/
-└── deep-paper-reading/
-    ├── SKILL.md
-    ├── agents/openai.yaml
-    ├── references/
-    └── assets/
-```
+| 技能 | 什么时候用 | 能得到什么 |
+| --- | --- | --- |
+| [Evidence-driven Delivery](skills/evidence-driven-delivery/SKILL.md) | 有目标、issue 或已有变更，需要把工作推进到明确的验收结果 | 项目内的规格、任务、检查记录与可恢复状态；常规步骤由 Codex 推进，重要决定由你确认 |
+| [Deep Paper Reading](skills/deep-paper-reading/SKILL.md) | 想看懂论文的论证和方法，或只想问清一个公式 | 完整深读默认交付离线双栏 HTML；局部问题直接在聊天中回答 |
 
 ## 安装
 
-克隆仓库，将需要的整个技能目录复制到用户级技能目录：优先使用环境变量 `CODEX_HOME` 下的 `skills`，未设置时使用 `~/.codex/skills`。不要只复制入口文件。
-
-Windows PowerShell 示例（在计划存放本仓库的父目录执行）：
+以下是 Windows PowerShell 命令。在你想存放仓库的父目录运行：
 
 ```powershell
-git clone https://github.com/Shliey/codex-research-delivery-skills.git
-cd codex-research-delivery-skills
+git clone https://github.com/Shliey/oh-my-skills.git
+cd oh-my-skills
+```
 
+从仓库根目录运行下面的安装命令。默认同时安装两个技能；若只要一个，把 `$selectedSkills` 设为只含对应技能名的数组，例如 `@('deep-paper-reading')`。
+
+```powershell
+$selectedSkills = @('evidence-driven-delivery', 'deep-paper-reading')
 $skillsRoot = if ($env:CODEX_HOME) {
     Join-Path $env:CODEX_HOME 'skills'
 } else {
-    Join-Path $HOME '.codex\skills'
+    Join-Path $HOME '.codex/skills'
+}
+
+foreach ($name in $selectedSkills) {
+    $source = Join-Path '.\skills' $name
+    $target = Join-Path $skillsRoot $name
+    if (!(Test-Path -LiteralPath (Join-Path $source 'SKILL.md') -PathType Leaf)) {
+        throw "找不到技能，请从 oh-my-skills 仓库根目录运行：$name"
+    }
+    if (Test-Path -LiteralPath $target) {
+        throw "已安装同名技能，请先检查并备份：$target"
+    }
 }
 
 New-Item -ItemType Directory -Path $skillsRoot -Force | Out-Null
-foreach ($name in @('evidence-driven-delivery', 'deep-paper-reading')) {
-    $destination = Join-Path $skillsRoot $name
-    if (Test-Path -LiteralPath $destination) {
-        throw "技能目录已存在，请先检查并备份后再更新：$destination"
-    }
-    Copy-Item -LiteralPath (Join-Path '.\skills' $name) -Destination $destination -Recurse
+foreach ($name in $selectedSkills) {
+    Copy-Item -LiteralPath (Join-Path '.\skills' $name) `
+        -Destination (Join-Path $skillsRoot $name) -Recurse
 }
 ```
 
-仓库为私有时，克隆需要拥有访问权限。安装后在新的 Codex 会话中调用技能。
+安装会复制整个技能目录，包括参考文件和辅助脚本。遇到同名目录时，先对比本机和仓库版本；如需替换，把原目录备份到技能目录之外，再运行安装。安装后打开新的 Codex 会话。
 
-## 使用
+## 在 Codex 中使用
 
-以下输入到 Codex 聊天，不是在终端运行。
+以下是聊天输入，不是终端命令。
 
-### Evidence-driven Delivery
+**交付一个可验收的改动**
 
 ```text
-$evidence-driven-delivery 根据当前仓库的要求完成这个目标：……
+$evidence-driven-delivery 实现订单查询的权限检查，保留现有接口，并验证其他用户无法读取订单。
 ```
 
-宿主 Agent 负责适配项目、读取仓库规则并推进阶段。目标项目拥有自己的策略、issue 和运行状态；技能包只携带通用控制逻辑与默认契约。审查或解释请求保持只读，不自动转成实施授权。
+如果你想自己写，可以明确说“我来实现，请只给下一步提示和检查方法”。仅讲解、计划或评审时保持只读；实施请求按授权推进。交付时分别说明测试、实际交互和远端结果验证到了哪一步。
 
-脚本需要 Python 3.11+，仅使用标准库；完整 Spec-first 交付还需要目标环境可用的 OpenSpec CLI。目标项目的测试、构建与部署依赖由该项目决定。
+交付辅助脚本需要 Python 3.11+，无第三方 Python 依赖。完整 OpenSpec 交付还需要 OpenSpec CLI；项目自己的构建与测试依赖由项目决定。
 
-### Deep Paper Reading
+**读懂一篇论文**
 
-提供论文文件、可访问的链接或原文，并指定模式：
+提供论文文件或可访问的原文，然后按目标调用：
 
-| 模式 | 调用示例 |
-|---|---|
-| `full`（默认） | `$deep-paper-reading 请用中文完整深读这篇论文。` |
-| `overview` | `$deep-paper-reading overview：解释精确输入输出、整体架构和主要创新。` |
-| `module` | `$deep-paper-reading module：深入分析本文的量化模块与数据表示。` |
-| `trace` | `$deep-paper-reading trace：用一个论文案例追踪所有核心中间数据。` |
-| `evidence` | `$deep-paper-reading evidence：核查创新是否得到实验与消融支持。` |
+| 模式 | 聊天示例 |
+| --- | --- |
+| `full`（默认） | `$deep-paper-reading full：完整深读这篇论文，课程：机器学习。` |
+| `overview` | `$deep-paper-reading overview：解释输入输出、整体架构和主要创新。` |
+| `module` | `$deep-paper-reading module：拆解量化模块，解释每个维度从哪里来。` |
+| `trace` | `$deep-paper-reading trace：用一个例子走完每一步数据转换。` |
+| `evidence` | `$deep-paper-reading evidence：核对实验和消融支持了哪些结论。` |
 
-默认中文、完整八阶段；区分论文事实、补充材料、推断和教学示例，未公开细节保持未知。默认不转入环境配置、源码分析或运行复现。LaMoGen 仅作为条件加载的验收案例，不是通用论文模板。
+默认只分析论文资料。要对照实现，可以加一句“请对照这个仓库的当前源码，指出公式和实际计算的差异”。源码对照与运行复现是不同任务；没有运行证据时只报告读到的实现。论文未说明的细节会保留为未知，教学值会单独标注。读取 PDF、图表和网页取决于宿主可用的工具。
 
-该技能没有硬编码解析工具依赖；具体 PDF、图表或网页读取能力取决于宿主环境。
+完整深读的 HTML 左栏排英文原文和中文译文，右栏逐段批注；文末是论证总览和可展开的八阶段深读。直接在浏览器打开单个文件即可，无需联网或启动服务。只提供摘要或部分正文时，报告会标明实际覆盖范围。
 
-## 校验与边界
+用 `full format=markdown` 取得原有 Markdown 报告，或用 `module format=html` 把指定模块导出为小范围双栏网页。HTML 生成器使用 Python 3.11+ 标准库；Markdown 模式不需要运行它。
 
-可以用本机 skill-creator 提供的 `quick_validate.py` 分别校验两个目录。中文文件在 Windows 上建议使用 `python -X utf8`。技能包结构校验不等同于行为效果或论文结论被独立验证。
+## 验证与贡献
 
-修改交付技能的控制脚本后，在仓库根目录运行：
+从仓库根目录运行以下命令。结构检查使用本机随 `skill-creator` 提供的校验器；若你的安装位置不同，请调整脚本路径。
 
 ```powershell
-python -X utf8 .\skills\evidence-driven-delivery\scripts\test_delivery.py
+$validator = Join-Path $HOME '.codex/skills/.system/skill-creator/scripts/quick_validate.py'
+python -X utf8 -B $validator .\skills\evidence-driven-delivery
+python -X utf8 -B $validator .\skills\deep-paper-reading
+python -X utf8 -B .\skills\evidence-driven-delivery\scripts\test_delivery.py
+python -X utf8 -B .\skills\deep-paper-reading\scripts\test_render_html.py
+git diff --check
 ```
 
-测试涉及真实的本地 TypeScript、Python 和 OpenSpec 路径；缺少前提时以测试实际输出为准，不能把跳过当成通过。
+结构检查验证技能包格式。交付测试覆盖控制器行为；完整 Python 和 TypeScript 集成用例还需要 OpenSpec，TypeScript 用例另需 Node.js 和 npm。缺少前提时报告实际跳过项。变更技能指引时，用相关的小场景复查行为，例如“用户明确要自己实现”或“论文没有公开阈值”。
 
-仓库只包含可复用技能包与仓库说明，不附带用户论文、论文阅读报告、模型权重、凭据、项目运行状态或原项目历史。初始导入保持已安装的两个技能包内容不变。
+提交反馈时，请提供可公开分享的最小示例、预期行为和观察到的结果。请勿附带私有论文、运行日志、项目数据或凭据。
