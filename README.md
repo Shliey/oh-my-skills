@@ -1,11 +1,12 @@
 # Oh My Skills
 
-两套独立使用的 Codex 技能：一个把软件需求推进到有证据的交付，另一个把机器学习论文拆到数据和机制层。
+三个可独立安装的 Codex 技能，分别用于软件交付、论文深读和简历优化。
 
 | 技能 | 什么时候用 | 能得到什么 |
 | --- | --- | --- |
 | [Evidence-driven Delivery](skills/evidence-driven-delivery/SKILL.md) | 有目标、issue 或已有变更，需要把工作推进到明确的验收结果 | 项目内的规格、任务、检查记录与可恢复状态；常规步骤由 Codex 推进，重要决定由你确认 |
 | [Deep Paper Reading](skills/deep-paper-reading/SKILL.md) | 想看懂论文的论证和方法，或只想问清一个公式 | 完整深读默认交付离线双栏 HTML；局部问题直接在聊天中回答 |
+| [Resume Optimizer](skills/resume-optimizer/SKILL.md) | 准备实习或校招简历，希望按岗位改写经历 | 岗位要求与真实经历的匹配、可直接粘贴的简历稿和待核实项 |
 
 ## 安装
 
@@ -16,10 +17,10 @@ git clone https://github.com/Shliey/oh-my-skills.git
 cd oh-my-skills
 ```
 
-从仓库根目录运行下面的安装命令。默认同时安装两个技能；若只要一个，把 `$selectedSkills` 设为只含对应技能名的数组，例如 `@('deep-paper-reading')`。
+从仓库根目录运行下面的安装命令。默认安装三个技能；若只要一个，把 `$selectedSkills` 设为只含对应技能名的数组，例如 `@('resume-optimizer')`。
 
 ```powershell
-$selectedSkills = @('evidence-driven-delivery', 'deep-paper-reading')
+$selectedSkills = @('evidence-driven-delivery', 'deep-paper-reading', 'resume-optimizer')
 $skillsRoot = if ($env:CODEX_HOME) {
     Join-Path $env:CODEX_HOME 'skills'
 } else {
@@ -78,6 +79,16 @@ $evidence-driven-delivery 实现订单查询的权限检查，保留现有接口
 
 用 `full format=markdown` 取得原有 Markdown 报告，或用 `module format=html` 把指定模块导出为小范围双栏网页。HTML 生成器使用 Python 3.11+ 标准库；Markdown 模式不需要运行它。
 
+**按岗位优化简历**
+
+附上简历或项目经历，并粘贴目标岗位的招聘说明：
+
+```text
+$resume-optimizer 按这份后端实习 JD 优化我的项目经历。给我可直接粘贴的版本，把待核实的信息单独列出来。
+```
+
+一个 JD 即可开始；没有 JD 时先做通用诊断。如果只想改一段经历，可以单独提交那一段。技能不要求安装运行脚本，默认交付文本。
+
 ## 验证与贡献
 
 从仓库根目录运行以下命令。结构检查使用本机随 `skill-creator` 提供的校验器；若你的安装位置不同，请调整脚本路径。
@@ -86,6 +97,7 @@ $evidence-driven-delivery 实现订单查询的权限检查，保留现有接口
 $validator = Join-Path $HOME '.codex/skills/.system/skill-creator/scripts/quick_validate.py'
 python -X utf8 -B $validator .\skills\evidence-driven-delivery
 python -X utf8 -B $validator .\skills\deep-paper-reading
+python -X utf8 -B $validator .\skills\resume-optimizer
 python -X utf8 -B .\skills\evidence-driven-delivery\scripts\test_delivery.py
 python -X utf8 -B .\skills\deep-paper-reading\scripts\test_render_html.py
 git diff --check
