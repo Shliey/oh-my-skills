@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resume Optimizer"
+  short_description: "Tailor resumes with verified experience and outcomes"
+  default_prompt: "Use $resume-optimizer to tailor my resume to this role using only experience and results I can substantiate."
