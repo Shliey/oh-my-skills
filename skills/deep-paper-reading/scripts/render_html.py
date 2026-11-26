@@ -15,7 +15,7 @@ COLORS = {
     "evidence": "蓝色 · 实证证据", "rebuttal": "绿色 · 让步或反驳",
     "method": "紫色 · 方法论",
 }
-STAGES = (
+LEGACY_TOPIC_LABELS = (
     "研究问题与输入输出", "整体架构", "数据表示", "关键机制",
     "训练与推理", "完整实例追踪", "创新与实验证据", "总结与自测",
 )
@@ -173,6 +173,45 @@ def backlinks(value, known, *, required=False):
     return ' <span class="backlinks">（' + " · ".join(links) + "）</span>" if links else ""
 
 
+
+def analysis_topics(packet):
+    if "analysis" in packet:
+        require("stages" not in packet, "use analysis or legacy stages, not both")
+        return array(packet["analysis"], "analysis")
+    legacy = obj(packet.get("stages", {}), "legacy stages")
+    labels = {str(i): label for i, label in enumerate(LEGACY_TOPIC_LABELS, 1)}
+    require(legacy.keys() <= labels.keys(), "unknown legacy topic number")
+    return [
+        {"title": label, "blocks": legacy[key]}
+        for key, label in labels.items()
+        if key in legacy
+    ]
+
+
+def render_analysis(topics, known):
+    items = []
+    for value in topics:
+        topic = obj(value, "analysis topic")
+        name = escape(field(topic, "title"))
+        fragments = []
+        for value in array(topic.get("blocks"), "analysis topic blocks", nonempty=True):
+            block = obj(value, "analysis block")
+            refs = backlinks(block.get("refs", []), known)
+            if "table" in block:
+                fragments.append(table(block["table"]) + refs)
+                continue
+            text = escape(field(block, "text"))
+            if block.get("answer"):
+                fragments.append(f"<details><summary>展开自测答案</summary><p>{text}{refs}</p></details>")
+            else:
+                fragments.append(f"<p>{text}{refs}</p>")
+        items.append(f'<section class="analysis-topic"><h3>{name}</h3>{"".join(fragments)}</section>')
+    return (
+        '<section id="analysis"><h2>深读分析</h2><details><summary>展开深读分析</summary>'
+        + "".join(items) + "</details></section>"
+    )
+
+
 def render(packet, directory):
     packet, directory = obj(packet, "packet"), Path(directory).resolve()
     title, mode, coverage = (field(packet, key) for key in ("title", "mode", "coverage"))
@@ -213,37 +252,13 @@ def render(packet, directory):
         summary_rows.append(f"<dt>{label}</dt><dd>{text}{refs}</dd>")
     navigation.append('<a href="#argument">论证总览</a>')
     summary = f'<section id="argument" class="synthesis"><h2>论证结构总览</h2><dl>{"".join(summary_rows)}</dl></section>'
-    stages = obj(packet.get("stages", {}), "stages")
-    valid_ids = {str(i) for i in range(1, len(STAGES) + 1)}
-    require(stages.keys() <= valid_ids, "unknown stage number")
+    topics = analysis_topics(packet)
     if mode == "full" and coverage == "complete":
-        require(stages.keys() == valid_ids, "complete full reports require all eight stages")
+        require(topics, "complete full reports require at least one analysis topic")
     analysis = ""
-    if stages:
+    if topics:
         navigation.append('<a href="#analysis">深读分析</a>')
-        items = []
-        for ix, name in enumerate(STAGES, 1):
-            blocks = stages.get(str(ix))
-            if blocks is None and not (mode == "full" and coverage == "complete"):
-                continue
-            fragments = []
-            for block in array(blocks, f"stage {ix}", nonempty=True):
-                block = obj(block, f"stage {ix} block")
-                if "table" in block:
-                    fragments.append(table(block["table"]))
-                else:
-                    text = escape(field(block, "text"))
-                    refs = backlinks(block.get("refs", []), known)
-                    if block.get("answer"):
-                        fragments.append(f"<details><summary>展开自测答案</summary><p>{text}{refs}</p></details>")
-                    else:
-                        fragments.append(f"<p>{text}{refs}</p>")
-            items.append(f'<section class="stage"><h3>{ix}. {name}</h3>{"".join(fragments)}</section>')
-        caption = "八阶段深读" if mode == "full" and stages.keys() == valid_ids else "深读分析（按覆盖范围）"
-        analysis = (
-            f'<section id="analysis"><h2>{caption}</h2><details><summary>展开{caption}</summary>'
-            + "".join(items) + "</details></section>"
-        )
+        analysis = render_analysis(topics, known)
     font_css, font_licenses = font_assets()
     return Template((ASSETS / "annotated-paper.html").read_text(encoding="utf-8")).substitute(
         title=escape(title), course=course, font_css=font_css, font_licenses=font_licenses,

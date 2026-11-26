@@ -11,7 +11,7 @@ from tempfile import TemporaryDirectory
 import unittest
 import base64
 
-from render_html import ASSETS, STAGES, SUMMARY, render
+from render_html import ASSETS, SUMMARY, render
 
 
 class Document(HTMLParser):
@@ -70,8 +70,10 @@ def example():
             **{key: {"text": "基于摘要或方法。", "refs": ["p-1-1", "p-2-1"]} for key in SUMMARY},
             "rebuttal": {"text": "论文未明确处理反驳。", "unavailable": True},
         },
-        "stages": {str(i): [{"text": name, "refs": ["p-2-1"], "answer": i == 8}]
-                   for i, name in enumerate(STAGES, 1)},
+        "analysis": [
+            {"title": "Method · 核心筛选", "blocks": [{"text": "逐项比较得分。", "refs": ["p-2-1"]}]},
+            {"title": "待核验的阈值", "blocks": [{"text": "阈值未公开。", "refs": ["p-2-1"], "answer": True}]},
+        ],
     }
 
 
@@ -101,7 +103,8 @@ class RenderTests(unittest.TestCase):
         self.assertIn("&lt;script&gt;", result)
         self.assertIn("阈值数值未说明", result)
         self.assertIn("论文未明确处理反驳", result)
-        self.assertEqual(sum(a.get("class") == "stage" for _, a in actual.elements), 8)
+        self.assertEqual(sum(a.get("class") == "analysis-topic" for _, a in actual.elements), 2)
+        self.assertLess(result.index("Method · 核心筛选"), result.index("待核验的阈值"))
 
     def test_offline_assets_and_source_integrity(self):
         result = render(self.packet, self.folder)
@@ -125,16 +128,18 @@ class RenderTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "gap requires"):
             render(self.packet, self.folder)
-        self.packet.update(coverage="partial", coverage_note="摘要页缺失。", stages={})
+        self.packet.update(coverage="partial", coverage_note="摘要页缺失。", analysis=[])
         result = render(self.packet, self.folder)
         self.assertIn("部分阅读：摘要页缺失", result)
         self.assertIn("扫描页缺失", result)
         self.assertEqual(Document(result).rows[0], ["original", "annotation"])
-        self.assertNotIn("八阶段深读", result)
+        self.assertNotIn('id="analysis"', result)
 
-    def test_full_requires_all_stages(self):
-        self.packet["stages"].pop("8")
-        with self.assertRaisesRegex(ValueError, "all eight"):
+    def test_complete_uses_selected_topics(self):
+        self.packet["analysis"].pop()
+        self.assertIn("Method · 核心筛选", render(self.packet, self.folder))
+        self.packet["analysis"] = []
+        with self.assertRaisesRegex(ValueError, "at least one analysis topic"):
             render(self.packet, self.folder)
         self.packet.update(mode="module", coverage="focused", coverage_note="只读方法。")
         self.packet.pop("course")
@@ -142,6 +147,22 @@ class RenderTests(unittest.TestCase):
         result = render(self.packet, self.folder)
         self.assertIn("局部阅读：只读方法", result)
         self.assertNotIn("课程：", result)
+
+    def test_legacy_topics_still_render(self):
+        self.packet.pop("analysis")
+        self.packet["stages"] = {"4": [{"text": "早期录入的机制。", "refs": ["p-2-1"]}]}
+        result = render(self.packet, self.folder)
+        self.assertIn('<h3>关键机制</h3>', result)
+        self.assertIn("早期录入的机制。", result)
+        self.assertIn('href="#p-2-1"', result)
+
+    def test_topic_blocks_and_links_are_validated(self):
+        self.packet["analysis"][0]["blocks"][0]["refs"] = ["p-9-9"]
+        with self.assertRaisesRegex(ValueError, "unresolved passage"):
+            render(self.packet, self.folder)
+        self.packet["analysis"][0]["blocks"] = []
+        with self.assertRaisesRegex(ValueError, "expected a nonempty array"):
+            render(self.packet, self.folder)
 
     def test_invalid_marks_backlinks_and_table(self):
         invalid = [

@@ -18,7 +18,7 @@
 
 ## Transformer 与神经网络
 
-给张量各轴、token/位置/条件来源、投影和层间表示。需要时以 Q/K/V 与 softmax(QKᵀ/√d)V 教学解释标准 attention，但不能擅定作者 heads、mask、norm、cross-attention、位置编码。
+先确认 self-attention 或 cross-attention。分别追 Q/K/V 的真实输入，写出每个投影的输入、权重、bias 和输出形状。解释实际 reshape、分头顺序及每头维度，再列打分矩阵、缩放、mask、softmax 轴、加权和、拼头与输出。核对位置编码、残差、归一化和 FFN。没有证据时不从图中三条线推定 Q/K/V。解释 Linear 时用小算例展示最后一轴的乘加、共享范围以及等维投影。
 
 说明 attention 在任务中的信息依赖与作用，输出头从何表示预测何变量，哪些参数训练。decoder 架构名不等于自回归执行方式。
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Deep Paper Reading"
-  short_description: "Bilingual paper annotations and evidence-grounded analysis"
-  default_prompt: "Use $deep-paper-reading to deliver a single bilingual HTML with paragraph annotations and an expandable eight-stage analysis."
+  short_description: "Evidence-grounded paper reading and visual talks"
+  default_prompt: "Use $deep-paper-reading to follow this paper in source order, explain the key diagrams and evidence, or prepare a visual deck with slide-by-slide speaker notes."
