@@ -1,10 +1,10 @@
 # Oh My Skills
 
-两套独立使用的 Codex 技能：一个把软件需求推进到有证据的交付，另一个把机器学习论文拆到数据和机制层。
+两套独立使用的技能，分别用于有证据的任务交付与机器学习论文深读。
 
 | 技能 | 什么时候用 | 能得到什么 |
 | --- | --- | --- |
-| [Evidence-driven Delivery](skills/evidence-driven-delivery/SKILL.md) | 有目标、issue 或已有变更，需要把工作推进到明确的验收结果 | 项目内的规格、任务、检查记录与可恢复状态；常规步骤由 Codex 推进，重要决定由你确认 |
+| [Evidence-driven Delivery](skills/evidence-driven-delivery/SKILL.md) | 需要交付、修订或验收软件、文档或研究材料 | 产物、实际检查结果与待核事项 |
 | [Deep Paper Reading](skills/deep-paper-reading/SKILL.md) | 想看懂论文的论证和方法，或只想问清一个公式 | 完整深读默认交付离线双栏 HTML；局部问题直接在聊天中回答 |
 
 ## 安装
@@ -56,9 +56,15 @@ foreach ($name in $selectedSkills) {
 $evidence-driven-delivery 实现订单查询的权限检查，保留现有接口，并验证其他用户无法读取订单。
 ```
 
-如果你想自己写，可以明确说“我来实现，请只给下一步提示和检查方法”。仅讲解、计划或评审时保持只读；实施请求按授权推进。交付时分别说明测试、实际交互和远端结果验证到了哪一步。
+如果你想自己做，可以明确说“请只给下一步提示和检查方法”。技能会按你的意图区分交付、评审、计划和指导。
 
-交付辅助脚本需要 Python 3.11+，无第三方 Python 依赖。完整 OpenSpec 交付还需要 OpenSpec CLI；项目自己的构建与测试依赖由项目决定。
+在其他 Agent 中，可以直接加载或粘贴完整的 [SKILL.md](skills/evidence-driven-delivery/SKILL.md)，然后附上任务。例如：
+
+```text
+根据下面的会议记录写一封可直接发送的通知草稿。核对日期、行动项和负责人，缺失的信息单独列出。
+```
+
+Evidence-driven Delivery 只有一个 Markdown 文件，运行时零依赖。Agent 按当前任务使用手头的资料和工具，并说明实际核验了什么。
 
 **读懂一篇论文**
 
@@ -86,11 +92,10 @@ $evidence-driven-delivery 实现订单查询的权限检查，保留现有接口
 $validator = Join-Path $HOME '.codex/skills/.system/skill-creator/scripts/quick_validate.py'
 python -X utf8 -B $validator .\skills\evidence-driven-delivery
 python -X utf8 -B $validator .\skills\deep-paper-reading
-python -X utf8 -B .\skills\evidence-driven-delivery\scripts\test_delivery.py
 python -X utf8 -B .\skills\deep-paper-reading\scripts\test_render_html.py
 git diff --check
 ```
 
-结构检查验证技能包格式。交付测试覆盖控制器行为；完整 Python 和 TypeScript 集成用例还需要 OpenSpec，TypeScript 用例另需 Node.js 和 npm。缺少前提时报告实际跳过项。变更技能指引时，用相关的小场景复查行为，例如“用户明确要自己实现”或“论文没有公开阈值”。
+结构检查验证技能包格式。修改技能指令时，用真实任务复查实际输出。例如，确认 Evidence-driven Delivery 能在纯聊天中交付文档，并按用户要求保持评审只读。
 
 提交反馈时，请提供可公开分享的最小示例、预期行为和观察到的结果。请勿附带私有论文、运行日志、项目数据或凭据。
